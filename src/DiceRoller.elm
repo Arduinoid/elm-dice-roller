@@ -158,7 +158,7 @@ genDieFace number =
         [ style "padding-top" "20px"
         , style "margin" "10px"
         , style "display" "inline-block"
-        , style "font-size" "3em"
+        , style "font-size" "4em"
         , style "border" "solid #ccc 4px"
         , style "border-radius" "8px"
         , style "vertical-align" "top"
@@ -173,13 +173,19 @@ view model =
         , style "padding" "100px"
         , style "text-align" "center"
         ]
-        [ div [] [ h1 [] [ text "Dice" ] ]
-        , div []
+        [ div [ style "font-size" "3em" ] [ h1 [ ] [ text "Dice" ] ]
+        , div [ style "font-size" "3em" ]
             [ h2 [] [text "count"]
-            , input [ onInput GatherInput, placeholder "Enter a number..." ] []
-            , button [ onClick UpdateCount ] [ text "update" ]
+            , input [ onInput GatherInput, placeholder "Enter a number..."
+                    , style "height" "2em"
+                    , style "width" "8em"
+                    , style "font-size" "1em"
+                    ] []
+            , button [ onClick UpdateCount
+                     , style "font-size" "1.4em"
+                     ] [ text "update / roll" ]
             ]
-        , h3 [] [ text "Press \"R\" or click update to roll the dice" ]
+        , h3 [style "font-size" "2em"] [ text "Press \"R\" or click update to roll the dice" ]
         , div [] (List.map genDieFace model.dice)
         ]
 

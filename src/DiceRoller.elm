@@ -185,7 +185,7 @@ view model =
                      , style "font-size" "1.4em"
                      ] [ text "update / roll" ]
             ]
-        , h3 [style "font-size" "2em"] [ text "Press \"R\" or click update to roll the dice" ]
+        , h3 [style "font-size" "2em"] [ text "Press \"R\", \"Enter\", or click update to roll the dice" ]
         , div [] (List.map genDieFace model.dice)
         ]
 
@@ -206,6 +206,9 @@ update msg model =
             case keycode of
                 82 ->
                     ( model, randomNumber model.count )
+
+                13 ->
+                    ( { model | count = model.inputCount }, randomNumber model.inputCount )
 
                 _ ->
                     ( model, Cmd.none )

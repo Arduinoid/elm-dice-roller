@@ -1,9 +1,10 @@
 module Main exposing (main)
 
 import Browser exposing (element)
-import Browser.Events exposing (onClick, onKeyDown)
-import Html exposing (Html, br, div, span, text)
-import Html.Attributes exposing (style)
+import Browser.Events exposing (onKeyDown)
+import Html exposing (Html, button, div, input, span, text, h1, h2, h3)
+import Html.Attributes exposing (style, type_, placeholder)
+import Html.Events exposing (onClick, onInput, keyCode)
 import Json.Decode as D
 import Random
 
@@ -13,7 +14,10 @@ import Random
 
 
 type alias Model =
-    Dice
+    { dice : Dice
+    , count : Int
+    , inputCount : Int
+    }
 
 
 type alias Dice =
@@ -21,8 +25,7 @@ type alias Dice =
 
 
 init : () -> ( Model, Cmd Msg )
-init _ =
-    ( [ 0, 0, 0 ], Cmd.none )
+init _ = ( Model [0] 1 1, Cmd.none)
 
 
 
@@ -30,91 +33,69 @@ init _ =
 
 
 type Msg
-    = MouseMsg
-    | KeyMsg
+    = KeyMsg Int
     | NewNumber Dice
+    | UpdateCount
+    | GatherInput String
 
 
 
 -- VIEW
 
 
-dieDot : Char -> Int -> Html Msg
-dieDot dot number =
-    let
-        s =
-            String.fromChar dot
-
-        styling =
-            [ style "margin" "0 40px" ]
-    in
-    case number of
-        1 ->
-            span styling [ text s ]
-
-        _ ->
-            span styling [ text " " ]
-
-
-genRow : List Int -> Html Msg
-genRow list =
-    List.map (dieDot '*') list
-        |> div [ style "width" "360px" ]
-
-
 oneFace : List (Html Msg)
 oneFace =
-    [ genRow [ 0, 0, 0 ]
-    , genRow [ 0, 1, 0 ]
-    , genRow [ 0, 0, 0 ]
+    [ genDotRow [ 0, 0, 0 ]
+    , genDotRow [ 0, 1, 0 ]
+    , genDotRow [ 0, 0, 0 ]
     ]
 
 
 twoFace : List (Html Msg)
 twoFace =
-    [ genRow [ 1, 0, 0 ]
-    , genRow [ 0, 0, 0 ]
-    , genRow [ 0, 0, 1 ]
+    [ genDotRow [ 1, 0, 0 ]
+    , genDotRow [ 0, 0, 0 ]
+    , genDotRow [ 0, 0, 1 ]
     ]
 
 
 threeFace : List (Html Msg)
 threeFace =
-    [ genRow [ 1, 0, 0 ]
-    , genRow [ 0, 1, 0 ]
-    , genRow [ 0, 0, 1 ]
+    [ genDotRow [ 1, 0, 0 ]
+    , genDotRow [ 0, 1, 0 ]
+    , genDotRow [ 0, 0, 1 ]
     ]
 
 
 fourFace : List (Html Msg)
 fourFace =
-    [ genRow [ 1, 0, 1 ]
-    , genRow [ 0, 0, 0 ]
-    , genRow [ 1, 0, 1 ]
+    [ genDotRow [ 1, 0, 1 ]
+    , genDotRow [ 0, 0, 0 ]
+    , genDotRow [ 1, 0, 1 ]
     ]
 
 
 fiveFace : List (Html Msg)
 fiveFace =
-    [ genRow [ 1, 0, 1 ]
-    , genRow [ 0, 1, 0 ]
-    , genRow [ 1, 0, 1 ]
+    [ genDotRow [ 1, 0, 1 ]
+    , genDotRow [ 0, 1, 0 ]
+    , genDotRow [ 1, 0, 1 ]
     ]
 
 
 sixFace : List (Html Msg)
 sixFace =
-    [ genRow [ 1, 0, 1 ]
-    , genRow [ 1, 0, 1 ]
-    , genRow [ 1, 0, 1 ]
+    [ genDotRow [ 1, 0, 1 ]
+    , genDotRow [ 1, 0, 1 ]
+    , genDotRow [ 1, 0, 1 ]
     ]
 
 
 noneFace : List (Html Msg)
 noneFace =
-    [ genRow [ 1, 1, 1 ]
-    , genRow [ 1, 1, 1 ]
-    , genRow [ 1, 1, 1 ]
+    [ genDotRow [ 1, 1, 1 ]
+    , genDotRow [ 1, 1, 1 ]
+    , genDotRow [ 1, 1, 1 ]
     ]
 
 
@@ -143,12 +124,41 @@ chooseDieFace number =
             noneFace
 
 
-genDie : Int -> Html Msg
-genDie number =
+dieDot : Char -> Int -> Html Msg
+dieDot dot number =
+    let
+        s =
+            String.fromChar dot
+
+        styling =
+            [ style "margin" "0 0.2em"
+            , style "font-size" "1.8em"
+            , style "font-weight" "bold"
+            ]
+    in
+    case number of
+        1 ->
+            span styling [ text s ]
+
+        _ ->
+            span styling [ text " " ]
+
+
+genDotRow : List Int -> Html Msg
+genDotRow list =
+    List.map (dieDot '*') list
+        |> div [ style "width" "5em"
+               , style "line-height" "0.8"
+               ]
+
+
+genDieFace : Int -> Html Msg
+genDieFace number =
     div
-        [ style "padding" "20px"
+        [ style "padding-top" "20px"
         , style "margin" "10px"
         , style "display" "inline-block"
+        , style "font-size" "3em"
         , style "border" "solid #ccc 4px"
         , style "border-radius" "8px"
         , style "vertical-align" "top"
@@ -160,44 +170,69 @@ view : Model -> Html Msg
 view model =
     div
         [ style "font-family" "sans-serif"
-        , style "font-size" "6em"
         , style "padding" "100px"
         , style "text-align" "center"
         ]
-        [ div [] [ text "Dice" ], div [] (List.map genDie model) ]
+        [ div [] [ h1 [] [ text "Dice" ] ]
+        , div []
+            [ h2 [] [text "count"]
+            , input [ onInput GatherInput, placeholder "Enter a number..." ] []
+            , button [ onClick UpdateCount ] [ text "update" ]
+            ]
+        , h3 [] [ text "Press \"R\" or click update to roll the dice" ]
+        , div [] (List.map genDieFace model.dice)
+        ]
 
 
 
 -- UPDATE
 
 
-randomNumber =
-    Random.generate NewNumber (Random.list 3 (Random.int 1 6))
+randomNumber : Int -> Cmd Msg
+randomNumber count =
+    Random.generate NewNumber (Random.list count (Random.int 1 6))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        MouseMsg ->
-            ( model, randomNumber )
+        KeyMsg keycode ->
+            case keycode of
+                82 ->
+                    ( model, randomNumber model.count )
 
-        KeyMsg ->
-            ( model, randomNumber )
+                _ ->
+                    ( model, Cmd.none )
 
         NewNumber numbers ->
-            ( numbers, Cmd.none )
+            ( { model | dice = numbers }, Cmd.none )
+
+        UpdateCount ->
+            ( { model | count = model.inputCount }, randomNumber model.inputCount )
+
+        GatherInput input ->
+            let
+                val = String.toInt input
+            in
+            case val of
+                Just num ->
+                    ( { model | inputCount = num }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 
 -- SUBSCRIPTIONS
 
+makeKeyDecoder : D.Decoder Msg
+makeKeyDecoder =
+    D.map KeyMsg keyCode
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ onClick (D.succeed MouseMsg)
-        , onKeyDown (D.succeed KeyMsg)
-        ]
+        [ onKeyDown makeKeyDecoder ]
 
 
 

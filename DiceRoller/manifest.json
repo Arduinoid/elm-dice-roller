@@ -1,0 +1,13 @@
+{
+    "name": "Dice Roller",
+    "short_name": "Dice",
+    "display": "standalone",
+    "description": "A simple dice rolling application where you can choose how many D6 die you would like to roll",
+    "background_color": "#fff",
+    "theme_color": "#5f42f4",
+    "icons": [{
+        "src": "icon.jpg",
+        "sizes": "626x626",
+        "type": "image/jpg"
+    }]
+}

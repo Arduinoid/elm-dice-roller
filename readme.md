@@ -11,6 +11,9 @@ great resources
 - [Unofficial Tutorial](https://www.elm-tutorial.org/en/) *It uses one version older of elm but is still good (the issue is functions that have been moved to different modules or are gone and replaced all together)*
 - [Online REPL](https://ellie-app.com) *Good for testing the language without having to set anything up*
 
+## Dice Roller
+
+To run this using the styles and index found in the **DiceRoller** folder you will need to recompile the **elm.js** file using `elm make ./src/DiceRoller.elm --output ./DiceRoller/elm.js`
 
 ## Notable Areas of the Repo
 
